@@ -10,7 +10,6 @@ RUN cd frontend && npm run build
 FROM golang:1.26-alpine AS backend-builder
 WORKDIR /app
 COPY backend/ backend/
-# Copy frontend dist for embedding
 COPY --from=frontend-builder /app/frontend/dist backend/frontend/dist
 RUN cd backend && CGO_ENABLED=0 go build -o /qfis .
 
@@ -20,14 +19,18 @@ RUN apk add --no-cache ca-certificates tzdata
 RUN adduser -D -h /app qfis
 WORKDIR /app
 COPY --from=backend-builder /qfis .
-RUN chown -R qfis:qfis /app
+RUN mkdir -p /app/data && chown -R qfis:qfis /app
 USER qfis
 
 EXPOSE 8080
 
 ENV GIN_MODE=release
 ENV PORT=8080
+ENV QFIS_DB_PATH=/app/data/qfis.db
 
 VOLUME ["/app/data"]
+
+HEALTHCHECK --interval=30s --timeout=5s --retries=3 --start-period=10s \
+  CMD wget -qO- http://localhost:8080/api/v1/dashboard/stats || exit 1
 
 CMD ["./qfis"]

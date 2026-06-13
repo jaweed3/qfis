@@ -115,28 +115,13 @@ func main() {
 }
 
 func serveFrontend(r *gin.Engine) {
-	if f, err := frontendFS.Open("frontend/dist/index.html"); err == nil {
-		f.Close()
-		sub, err := fs.Sub(frontendFS, "frontend/dist")
-		if err != nil {
-			log.Fatalf("Failed to get frontend sub FS: %v", err)
-		}
-		staticFS := http.FS(sub)
-
-		r.GET("/", func(c *gin.Context) { c.FileFromFS("index.html", staticFS) })
-		r.GET("/assets/*filepath", func(c *gin.Context) {
-			c.FileFromFS(strings.TrimPrefix(c.Request.URL.Path, "/"), staticFS)
-		})
-		r.GET("/favicon.svg", func(c *gin.Context) { c.FileFromFS("favicon.svg", staticFS) })
-		r.NoRoute(func(c *gin.Context) {
-			p := strings.TrimPrefix(c.Request.URL.Path, "/")
-			if f, err := sub.Open(p); err == nil {
-				f.Close()
-				c.FileFromFS(p, staticFS)
-				return
-			}
-			c.FileFromFS("index.html", staticFS)
-		})
+	// Try embedded frontend first
+	sub, err := fs.Sub(frontendFS, "frontend/dist")
+	if err == nil {
+		r.GET("/", frontendHandler(sub, ""))
+		r.GET("/assets/*path", frontendHandler(sub, "assets"))
+		r.GET("/favicon.svg", frontendHandler(sub, "favicon.svg"))
+		r.NoRoute(frontendHandler(sub, ""))
 		log.Println("Frontend: embedded")
 		return
 	}
@@ -150,5 +135,54 @@ func serveFrontend(r *gin.Engine) {
 		log.Println("Frontend: filesystem")
 	} else {
 		log.Println("Frontend: none (API only)")
+	}
+}
+
+func frontendHandler(sub fs.FS, prefix string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		filePath := strings.TrimPrefix(c.Request.URL.Path, "/")
+		if prefix != "" && filePath == prefix {
+			filePath = prefix
+		}
+		if prefix != "" && filePath != prefix {
+			filePath = strings.TrimPrefix(filePath, prefix+"/")
+			filePath = prefix + "/" + filePath
+		}
+
+		data, err := fs.ReadFile(sub, filePath)
+		if err != nil {
+			// SPA fallback: serve index.html
+			data, err = fs.ReadFile(sub, "index.html")
+			if err != nil {
+				c.Status(http.StatusNotFound)
+				return
+			}
+		}
+
+		contentType := detectContentType(filePath, data)
+		c.Data(http.StatusOK, contentType, data)
+	}
+}
+
+func detectContentType(path string, data []byte) string {
+	switch {
+	case strings.HasSuffix(path, ".html"):
+		return "text/html; charset=utf-8"
+	case strings.HasSuffix(path, ".css"):
+		return "text/css; charset=utf-8"
+	case strings.HasSuffix(path, ".js"):
+		return "application/javascript"
+	case strings.HasSuffix(path, ".svg"):
+		return "image/svg+xml"
+	case strings.HasSuffix(path, ".png"):
+		return "image/png"
+	case strings.HasSuffix(path, ".ico"):
+		return "image/x-icon"
+	case strings.HasSuffix(path, ".woff2"):
+		return "font/woff2"
+	case strings.HasSuffix(path, ".json"):
+		return "application/json"
+	default:
+		return http.DetectContentType(data)
 	}
 }

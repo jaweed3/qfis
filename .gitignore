@@ -15,6 +15,10 @@ frontend/.vite/
 .DS_Store
 Thumbs.db
 
+# Temp files
+%DOCKER_CONFIG%/
+docker-config/
+
 # IDE
 .vscode/
 .idea/

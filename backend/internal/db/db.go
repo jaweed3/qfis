@@ -19,8 +19,9 @@ func Init(path string) error {
 		return fmt.Errorf("open db: %w", err)
 	}
 
-	conn.Exec("PRAGMA journal_mode=WAL")
+	conn.Exec("PRAGMA journal_mode=DELETE")
 	conn.Exec("PRAGMA foreign_keys=ON")
+	conn.Exec("PRAGMA busy_timeout=5000")
 
 	if err := migrate(); err != nil {
 		return fmt.Errorf("migrate: %w", err)
