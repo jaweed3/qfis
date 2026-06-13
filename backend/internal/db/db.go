@@ -105,6 +105,12 @@ func SearchMerchants(q string) ([]models.Merchant, error) {
 	return merchants, nil
 }
 
+func GetMerchantCount() (int, error) {
+	var count int
+	err := conn.QueryRow(`SELECT COUNT(*) FROM merchants`).Scan(&count)
+	return count, err
+}
+
 func GetAllMerchants() ([]models.Merchant, error) {
 	rows, err := conn.Query(
 		`SELECT id, name, mcc, npwp_valid, flagged, x, y FROM merchants`,

@@ -1,9 +1,10 @@
 # Backend
 backend/server.exe
-backend/qfis.db
-backend/qfis.db-shm
-backend/qfis.db-wal
+backend/qfis.exe
+backend/qfis-linux
+backend/qfis.db*
 backend/vendor/
+backend/frontend/dist/
 
 # Frontend
 frontend/node_modules/
