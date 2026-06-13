@@ -1,0 +1,21 @@
+# Backend
+backend/server.exe
+backend/qfis.db
+backend/qfis.db-shm
+backend/qfis.db-wal
+backend/vendor/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
