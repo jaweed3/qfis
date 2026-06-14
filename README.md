@@ -32,8 +32,8 @@ scp backend/qfis-linux user@server:~/qfis/
 ssh user@server
 cd ~/qfis
 mkdir -p data
-GIN_MODE=release PORT=8080 ./qfis-linux
-# → http://server:8080
+GIN_MODE=release PORT=21465 ./qfis-linux
+# → http://server:21465
 ```
 
 ### Opsi 2 — Docker
@@ -42,7 +42,7 @@ GIN_MODE=release PORT=8080 ./qfis-linux
 cp .env.example .env
 # Edit API_KEY jika perlu
 docker compose up -d
-# → http://localhost:8080
+# → http://localhost:21465
 ```
 
 ### Opsi 3 — Development
@@ -50,12 +50,12 @@ docker compose up -d
 ```bash
 # Terminal 1 — Backend
 cd backend
-go run .    # → :8080
+go run .    # → :21465
 
 # Terminal 2 — Frontend (hot reload)
 cd frontend
 npm install
-npm run dev  # → :5173 (proxy ke :8080)
+npm run dev  # → :5173 (proxy ke :21465)
 ```
 
 ---
@@ -76,7 +76,7 @@ npm run dev  # → :5173 (proxy ke :8080)
 ### Contoh: Cek Merchant
 
 ```bash
-curl -X POST http://localhost:8080/api/v1/merchant/check \
+curl -X POST http://localhost:21465/api/v1/merchant/check \
   -H "Content-Type: application/json" \
   -d '{"qris_merchant_id": "QRIS-9942A", "merchant_name": "Pulsa Murah 24Jam"}'
 ```

@@ -2,10 +2,10 @@ services:
   qfis:
     build: .
     ports:
-      - "${PORT:-8080}:8080"
+      - "${PORT:-21465}:21465"
     environment:
       - GIN_MODE=release
-      - PORT=8080
+      - PORT=21465
       - QFIS_DB_PATH=/app/data/qfis.db
       - API_KEY=${API_KEY:-}
       - CORS_ORIGINS=${CORS_ORIGINS:-*}
@@ -13,7 +13,7 @@ services:
       - qfis-data:/app/data
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:8080/api/v1/dashboard/stats"]
+      test: ["CMD", "wget", "-qO-", "http://localhost:21465/api/v1/dashboard/stats"]
       interval: 30s
       timeout: 5s
       retries: 3

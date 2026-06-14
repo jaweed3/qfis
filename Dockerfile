@@ -22,15 +22,15 @@ COPY --from=backend-builder /qfis .
 RUN mkdir -p /app/data && chown -R qfis:qfis /app
 USER qfis
 
-EXPOSE 8080
+EXPOSE 21465
 
 ENV GIN_MODE=release
-ENV PORT=8080
+ENV PORT=21465
 ENV QFIS_DB_PATH=/app/data/qfis.db
 
 VOLUME ["/app/data"]
 
 HEALTHCHECK --interval=30s --timeout=5s --retries=3 --start-period=10s \
-  CMD wget -qO- http://localhost:8080/api/v1/dashboard/stats || exit 1
+  CMD wget -qO- http://localhost:21465/api/v1/dashboard/stats || exit 1
 
 CMD ["./qfis"]

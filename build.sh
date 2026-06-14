@@ -18,7 +18,7 @@ echo "── Deploy ────────────────────
 echo "  scp backend/qfis-linux user@server:~/qfis/"
 echo "  ssh user@server"
 echo "  mkdir -p ~/qfis/data"
-echo "  PORT=8080 GIN_MODE=release ./qfis-linux"
+  echo "  PORT=21465 GIN_MODE=release ./qfis-linux"
 echo ""
 echo "── Or via Docker ───────────────────────────────"
 echo "  docker compose up -d"
